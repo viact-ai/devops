@@ -1,0 +1,50 @@
+extensions:
+  basicauth/client:
+    client_auth:
+      username: {{ OTEL_USERNAME }}
+      password: {{ OTEL_PASSWORD }}
+
+receivers:
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'dcgm-exporter'
+          scrape_interval: 15s
+          static_configs:
+            - targets: ['localhost:9400']
+  hostmetrics:
+    collection_interval: 15s
+    scrapers:
+      cpu:
+      load:
+      memory:
+      disk:
+      filesystem:
+      paging:
+      network:
+
+processors:
+  batch:
+    send_batch_size: 10000
+    send_batch_max_size: 11000
+    timeout: 10s
+  attributes:
+    actions:
+{{ OTEL_ATTR }}
+
+exporters:
+  otlphttp:
+    auth:
+      authenticator: basicauth/client
+    endpoint: https://intake.viact.net
+
+service:
+  extensions: [basicauth/client]
+  pipelines:
+    metrics:
+      receivers: [hostmetrics, prometheus]
+      processors: [batch, attributes]
+      exporters: [otlphttp]
+  telemetry:
+    logs:
+      level: "info"

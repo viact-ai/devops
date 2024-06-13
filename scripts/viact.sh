@@ -63,12 +63,28 @@ install_falco() {
     echo "Install falco done"
 }
 
+
+install_dcgm() {
+    echo "Installing falco agent"
+
+    rm -f dcgm-exporter-amd64.deb
+    trap "rm -f dcgm-exporter-amd64.deb" EXIT
+    curl -sSLO https://viact-devops.s3.ap-southeast-1.amazonaws.com/deb/dcgm-exporter-amd64.deb
+    dpkg --install dcgm-exporter-amd64.deb
+
+    systemctl restart dcgm-exporter
+
+    echo "Install falco done"
+}
+
 otel=false
 falco=false
+dcgm_exporter=false
 config_template="aws"
+arch="amd64"
 otel_attrs=""
 
-while getopts ":l:i:t:" o; do
+while getopts ":l:i:t::a:" o; do
     case "${o}" in
         l)
             otel_attrs=${OPTARG}
@@ -77,10 +93,14 @@ while getopts ":l:i:t:" o; do
             for app in ${OPTARG[@]}; do
                 [[ $app == "otel" ]] && otel=true
                 [[ $app == "falco" ]] && falco=true
+                [[ $app == "dcgm_exporter" ]] && dcgm_exporter=true
             done
             ;;
         t)
             [[ -n ${OPTARG} ]] && config_template=${OPTARG}
+            ;;
+        a)
+            [[ -n ${OPTARG} ]] && arch=${OPTARG}
             ;;
     esac
 done
@@ -89,11 +109,13 @@ if [[ $otel == "false" ]] && [[ $falco == "false" ]]; then
     usage
 fi
 
+
 if [[ $otel == "true" ]]; then
     install_otel
 fi
-
-
 if [[ $falco == "true" ]]; then
     install_falco
+fi
+if [[ $dcgm_exporter == "true" ]]; then
+    install_dcgm
 fi
