@@ -1,0 +1,5 @@
+Package: viact-otel
+Version: 1.0
+Maintainer: Eric Ngo <eric.ngo@viact.ai>
+Architecture: amd64
+Description: viAct OpenTelemetry collector
