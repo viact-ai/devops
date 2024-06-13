@@ -1,2 +1,3 @@
 **/bin/otelcol
 **/bin/dcgm-exporter
+**/*.deb
