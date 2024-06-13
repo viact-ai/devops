@@ -65,7 +65,7 @@ install_falco() {
 
 
 install_dcgm() {
-    echo "Installing falco agent"
+    echo "Installing dcgm exporter agent"
 
     rm -f dcgm-exporter-amd64.deb
     trap "rm -f dcgm-exporter-amd64.deb" EXIT
@@ -74,7 +74,7 @@ install_dcgm() {
 
     systemctl restart dcgm-exporter
 
-    echo "Install falco done"
+    echo "Install dcgm exporter done"
 }
 
 otel=false
