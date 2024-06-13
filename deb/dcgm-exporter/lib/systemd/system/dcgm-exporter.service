@@ -1,0 +1,12 @@
+[Unit]
+Description=DCGM Exporter
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/dcgm-exporter
+KillMode=mixed
+Restart=always
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
