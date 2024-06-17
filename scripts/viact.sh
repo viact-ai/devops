@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
-# viact.sh -l name=signoz,team=software,project=monitor -i otel -i falco -t aws
+# viact.sh -l name=signoz,team=software,project=monitor -i otel -i falco -t aws -a amd64
 usage() {
     echo -e '''Script using for install agent on server and workstation.
 
 Usage:
-  viact.sh -l [opentelemetry attribution] -i [agent] -t [config template]
+  viact.sh -l [opentelemetry attribution] -i [agent] -t [config template] -a [cpu arch]
 
 Flags:
   -l\tOpentelemetry attribution (example -l name=backend,team=software,project=dotnet)
   -t\tInstall agent with config template (aws, noaws, noaws-gpu), default "aws" (example -t aws)
+  -a\tInstall agent running on specific CPU architect (amd64, armhv8, armhv7), default "amd64" (example -a amd64)
   -i\tAgent want to install (otel, falco, dcgm_exporter)
     \tThis is multiple choice option (example -i otel -i falco -i dcgm_exporter)
 
@@ -46,10 +47,10 @@ install_otel() {
         attrs_yaml="${attrs_yaml}      - key: $key\n        value: $value\n        action: insert\n"
     done
 
-    rm -f otelcol-amd64.deb
-    trap "rm -f otelcol-amd64.deb" EXIT
-    curl -sSLO https://viact-devops.s3.ap-southeast-1.amazonaws.com/deb/otelcol-amd64.deb
-    dpkg --install otelcol-amd64.deb
+    rm -f otelcol-${arch}.deb
+    trap "rm -f otelcol-${arch}.deb" EXIT
+    curl -sSLO https://viact-devops.s3.ap-southeast-1.amazonaws.com/deb/otelcol-${arch}.deb
+    dpkg --install otelcol-${arch}.deb
 
     config=`curl -sSL https://viact-devops.s3.ap-southeast-1.amazonaws.com/scripts/viact/${config_template}.otel-config.yaml`
     # echo "$config" | sed 's|{{ OTEL_ATTR }}|'"$attrs_yaml"'|g' | \
@@ -73,10 +74,10 @@ install_falco() {
 install_dcgm() {
     echo "Installing dcgm exporter agent"
 
-    rm -f dcgm-exporter-amd64.deb
-    trap "rm -f dcgm-exporter-amd64.deb" EXIT
-    curl -sSLO https://viact-devops.s3.ap-southeast-1.amazonaws.com/deb/dcgm-exporter-amd64.deb
-    dpkg --install dcgm-exporter-amd64.deb
+    rm -f dcgm-exporter-${arch}.deb
+    trap "rm -f dcgm-exporter-${arch}.deb" EXIT
+    curl -sSLO https://viact-devops.s3.ap-southeast-1.amazonaws.com/deb/dcgm-exporter-${arch}.deb
+    dpkg --install dcgm-exporter-${arch}.deb
 
     systemctl restart dcgm-exporter
 

@@ -1,0 +1,5 @@
+Package: viact-dcgm-exporter
+Version: 1.0
+Maintainer: Eric Ngo <eric.ngo@viact.ai>
+Architecture: amd64
+Description: viAct DCGM Exporter GPU Monitoring

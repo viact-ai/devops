@@ -1,0 +1,52 @@
+receivers:
+  hostmetrics:
+    collection_interval: 15s
+    scrapers:
+      cpu:
+      load:
+      memory:
+      disk:
+      filesystem:
+      paging:
+      network:
+
+processors:
+  batch:
+    send_batch_size: 10000
+    send_batch_max_size: 11000
+    timeout: 10s
+  attributes:
+    actions:
+      - key: host
+        action: insert
+        value: 10.11.1.10      
+      - key: name # server name, example rnd_p61
+        action: insert
+        # value: ""
+      - key: dc # where we put server, like hk, aws
+        action: insert
+        # value: ""
+      #- key: region # for AWS
+      #  action: insert
+      #  value: ap-southeast-1
+      - key: team # who will incharge of this server, software, hardware,...
+        action: insert
+        #value: ""
+
+exporters:
+  otlp:
+    endpoint: 10.11.3.107:4317
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    metrics:
+      receivers: [hostmetrics]
+      processors: [batch, attributes]
+      exporters: [otlp]
+  telemetry:
+    logs:
+      level: "info"
+
+
