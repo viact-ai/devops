@@ -8,9 +8,9 @@ Usage:
 
 Flags:
   -l\tOpentelemetry attribution (example -l name=backend,team=software,project=dotnet)
-  -t\tInstall agent with config template (aws, noaws), default "aws" (example -t aws)
-  -i\tAgent want to install (otel, falco)
-    \tThis is multiple choice option (example -i otel -i falco)
+  -t\tInstall agent with config template (aws, noaws, noaws-gpu), default "aws" (example -t aws)
+  -i\tAgent want to install (otel, falco, dcgm_exporter)
+    \tThis is multiple choice option (example -i otel -i falco -i dcgm_exporter)
 
 Example:
   Install opentelemetry with attribution and falco
@@ -19,8 +19,14 @@ Example:
   Install opentelemetry only
   viact.sh -l name=signoz,team=software,project=monitor -i otel
 
-  Install opentelemetry with cofig template for non aws resource
+  Install opentelemetry with config template for non aws resource
   viact.sh -l name=signoz,team=software,project=monitor -i otel -t noaws
+
+  Install opentelemetry and dcgm exporter with config template for noaws to monitor workstation with GPU
+  viact.sh -l name=signoz,team=software,project=monitor -i otel -i dcgm_exporter -t noaws-gpu
+
+  Install opentelemetry with config template for noaws to monitor workstation with GPU, dcgm-exporter is pre-installed
+  viact.sh -l name=signoz,team=software,project=monitor -i otel -t noaws-gpu
 
   Install falco only
   viact.sh -i falco'''
