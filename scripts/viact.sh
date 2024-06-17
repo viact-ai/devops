@@ -9,7 +9,7 @@ Usage:
 Flags:
   -l\tOpentelemetry attribution (example -l name=backend,team=software,project=dotnet)
   -t\tInstall agent with config template (aws, noaws, noaws-gpu), default "aws" (example -t aws)
-  -a\tInstall agent running on specific CPU architect (amd64, armhv8, armhv7), default "amd64" (example -a amd64)
+  -a\tInstall agent running on specific CPU architect (amd64, arm64, armhv7), default "amd64" (example -a amd64)
   -i\tAgent want to install (otel, falco, dcgm_exporter)
     \tThis is multiple choice option (example -i otel -i falco -i dcgm_exporter)
 
