@@ -112,8 +112,9 @@ while getopts ":l:i:t::a:" o; do
     esac
 done
 
-if [[ $otel == "false" ]] && [[ $falco == "false" ]]; then
+if [[ $otel == "false" ]] && [[ $falco == "false" ]] && [[ $dcgm_exporter == "false" ]]; then
     usage
+    exit 0
 fi
 
 
