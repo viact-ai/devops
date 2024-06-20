@@ -1,0 +1,5 @@
+Package: viact-otel
+Version: 1.0
+Maintainer: Eric Ngo <eric.ngo@viact.ai>
+Architecture: armhf
+Description: viAct OpenTelemetry collector
