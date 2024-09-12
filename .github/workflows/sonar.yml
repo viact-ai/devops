@@ -1,0 +1,49 @@
+on:
+  workflow_call:
+    inputs:
+      PROJECT_NAME:
+        type: string
+        required: true
+    secrets:
+      USER_TOKEN:
+        required: true
+      ANALYSIS_TOKEN:
+        required: true
+      DEFECTDOJO_API_TOKEN:
+        required: true
+jobs:
+  Scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create project if not exist
+        run: |
+          curl -u ${{ secrets.USER_TOKEN }}: \
+          -X POST \
+          https://sonarqube.viact.net:21443/api/projects/create?name=${{ inputs.PROJECT_NAME }}\&project=${{ inputs.PROJECT_NAME }}\&visibility=private
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@v2.1.0
+        with:
+          args: >-
+            -Dsonar.projectKey=${{ inputs.PROJECT_NAME }}
+            -Dsonar.sources=.
+            -Dsonar.host.url=https://sonarqube.viact.net:21443
+            -Dsonar.token=${{ secrets.ANALYSIS_TOKEN }}
+      - name: Retrieve SonarQube Report
+        run: |
+          curl -u ${{ secrets.ANALYSIS_TOKEN }} \
+          https://sonarqube.viact.net:21443/api/issues/search?componentKeys=my_project_key&resolved=false \
+          -o sonarqube-report.json
+      - name: Send Report to DefectDojo
+        run: |
+          curl -X POST "https://security-center.viact.net:21443/api/v2/import-scan/" \
+          -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_TOKEN }}" \
+          -F "scan_type=SonarQube Scan" \
+          -F "engagement=1" \
+          -F "file=@sonarqube-report.json" \
+          -F "active=true" \
+          -F "verified=false" \
+          -F "close_old_findings=false"
+
