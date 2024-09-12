@@ -34,8 +34,7 @@ jobs:
       - name: Retrieve SonarQube Report
         run: |
           curl -u ${{ secrets.ANALYSIS_TOKEN }} \
-          https://sonarqube.viact.net:21443/api/issues/search?componentKeys=${{ inputs.PROJECT_NAME }}&resolved=false \
-          -o sonarqube-report.json
+          https://sonarqube.viact.net:21443/api/issues/search?componentKeys=${{ inputs.PROJECT_NAME }}\&resolved=false -o sonarqube-report.json
       - name: Send Report to DefectDojo
         run: |
           curl -X POST "https://security-center.viact.net:21443/api/v2/import-scan/" \
