@@ -32,9 +32,9 @@ jobs:
         uses: zaproxy/action-full-scan@v0.11.0
         with:
           target: "${{ matrix.target }}"
-          rules_file_name: false
+          rules_file_name: null  # No rules file
           artifact_name: "zap_report_${{ matrix.engagement }}.json"
-          cmd_options: '-daemon -port 8080 -host 0.0.0.0 -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true -addonupdate'
+          cmd_options: "-J zap_report_${{ matrix.engagement }}.json -r report_${{ matrix.engagement }}.html"  # Generate JSON and HTML reports
 
       - name: Print ZAP Logs
         run: cat /zap/wrk/zap.log
