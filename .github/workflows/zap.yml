@@ -33,13 +33,17 @@ jobs:
         with:
           target: "${{ matrix.target }}"
           rules_file_name: false
-          artifact_name: "zap_report_${{ matrix.target }}.json"
+          artifact_name: "zap_report_${{ matrix.engagement }}.json"
+          cmd_options: '-daemon -port 8080 -host 0.0.0.0 -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true -addonupdate'
+
+      - name: Print ZAP Logs
+        run: cat /zap/wrk/zap.log
 
       - name: Upload ZAP Report
-        uses: actions/upload-artifact@v3  # Updated to version 3
+        uses: actions/upload-artifact@v3
         with:
-          name: zap-report-${{ matrix.target }}
-          path: zap_report_${{ matrix.target }}.json
+          name: zap-report-${{ matrix.engagement }}
+          path: zap_report_${{ matrix.engagement }}.json
 
       - name: Send ZAP Report to DefectDojo
         run: |
@@ -47,7 +51,7 @@ jobs:
           -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_TOKEN }}" \
           -F "scan_type=ZAP Scan" \
           -F "engagement=${{ matrix.engagement }}" \
-          -F "file=@zap_report_${{ matrix.target }}.json" \
+          -F "file=@zap_report_${{ matrix.engagement }}.json" \
           -F "active=true" \
           -F "verified=false" \
           -F "close_old_findings=false"
