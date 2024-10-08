@@ -8,7 +8,6 @@ on:
 jobs:
   ZapFullScan:
     runs-on: ubuntu-latest
-    timeout-minutes: 120  # Increase the timeout to avoid premature cancellation
 
     strategy:
       matrix:
@@ -33,18 +32,14 @@ jobs:
         uses: zaproxy/action-full-scan@v0.11.0
         with:
           target: "${{ matrix.target }}"
-          rules_file_name: null  # No rules file
-          artifact_name: "zap_report_${{ matrix.engagement }}.json"
-          cmd_options: "-J zap_report_${{ matrix.engagement }}.json -r report_${{ matrix.engagement }}.html -daemon -port 8080 -host 0.0.0.0 -addonupdate"  # Simplified options, remove -e options
-
-      - name: Print ZAP Logs
-        run: cat /zap/wrk/zap.log
+          rules_file_name: null
+          artifact_name: "zap_report_${{ matrix.target | replace('https://', '') | replace('.', '_') | replace('/', '_') }}.json"
 
       - name: Upload ZAP Report
         uses: actions/upload-artifact@v3
         with:
-          name: zap-report-${{ matrix.engagement }}
-          path: zap_report_${{ matrix.engagement }}.json
+          name: zap-report-${{ matrix.target | replace('https://', '') | replace('.', '_') | replace('/', '_') }}
+          path: zap_report_${{ matrix.target | replace('https://', '') | replace('.', '_') | replace('/', '_') }}.json
 
       - name: Send ZAP Report to DefectDojo
         run: |
@@ -52,7 +47,7 @@ jobs:
           -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_TOKEN }}" \
           -F "scan_type=ZAP Scan" \
           -F "engagement=${{ matrix.engagement }}" \
-          -F "file=@zap_report_${{ matrix.engagement }}.json" \
+          -F "file=@zap_report_${{ matrix.target | replace('https://', '') | replace('.', '_') | replace('/', '_') }}.json" \
           -F "active=true" \
           -F "verified=false" \
           -F "close_old_findings=false"
