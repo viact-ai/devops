@@ -2,21 +2,24 @@ on:
   schedule:
     # Schedule to run on the first Sunday of every month at 00:00 UTC
     - cron: '0 0 * * 0#1'
-  workflow_call:
-    inputs:
-      PROJECT_NAME:
-        type: string
-        required: true
-      ENGAGEMENT:
-        type: string
-        required: true
-    secrets:
-      DEFECTDOJO_API_TOKEN:
-        required: true
+  workflow_dispatch:
 
 jobs:
   ZapFullScan:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        target: 
+          - "https://app.viact.ai"
+          - "https://api.viact.ai"
+          - "https://app.viact.net"
+          - "https://api.viact.net"
+        engagement:
+          - 5  # Engagement ID for app.viact.ai
+          - 6  # Engagement ID for api.viact.ai
+          - 7  # Engagement ID for app.viact.net
+          - 8  # Engagement ID for api.viact.net
 
     steps:
       - name: Checkout repository
@@ -24,27 +27,27 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run ZAP Full Scan
+      - name: Run ZAP Full Scan on ${{ matrix.target }}
         uses: zaproxy/action-full-scan@v0.11.0
         with:
-          target: "https://viact.ai" 
-          rules_file_name: false  # Skip using a rules file for now
+          target: "${{ matrix.target }}"
+          rules_file_name: false
           format: "json"
-          artifact_name: "zap_report.json"
+          artifact_name: "zap_report_${{ matrix.target | hash }}.json"
 
       - name: Upload ZAP Report
         uses: actions/upload-artifact@v2
         with:
-          name: zap-report
-          path: zap_report.json
+          name: zap-report-${{ matrix.target | hash }}
+          path: zap_report_${{ matrix.target | hash }}.json
 
       - name: Send ZAP Report to DefectDojo
         run: |
           curl -X POST "https://security-center.viact.net:21443/api/v2/import-scan/" \
           -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_TOKEN }}" \
           -F "scan_type=ZAP Scan" \
-          -F "engagement=${{ inputs.ENGAGEMENT }}" \
-          -F "file=@zap_report.json" \
+          -F "engagement=${{ matrix.engagement }}" \
+          -F "file=@zap_report_${{ matrix.target | hash }}.json" \
           -F "active=true" \
           -F "verified=false" \
           -F "close_old_findings=false"
