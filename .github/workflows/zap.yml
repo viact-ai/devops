@@ -8,7 +8,7 @@ on:
 jobs:
   ZapFullScan:
     runs-on: ubuntu-latest
-    timeout-minutes: 5  # Increase the timeout to avoid premature cancellation
+    timeout-minutes: 120  # Increase the timeout to avoid premature cancellation
 
     strategy:
       matrix:
@@ -35,7 +35,7 @@ jobs:
           target: "${{ matrix.target }}"
           rules_file_name: null  # No rules file
           artifact_name: "zap_report_${{ matrix.engagement }}.json"
-          cmd_options: "-daemon -port 8080 -host 0.0.0.0 -addonupdate"  # Basic command to run ZAP in daemon mode
+          cmd_options: "-J zap_report_${{ matrix.engagement }}.json -r report_${{ matrix.engagement }}.html -daemon -port 8080 -host 0.0.0.0 -addonupdate"  # Simplified options, remove -e options
 
       - name: Print ZAP Logs
         run: cat /zap/wrk/zap.log
