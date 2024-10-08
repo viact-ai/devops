@@ -33,7 +33,6 @@ jobs:
         with:
           target: "${{ matrix.target }}"
           rules_file_name: false
-          format: "json"
           artifact_name: "zap_report_${{ matrix.target }}.json"
 
       - name: Upload ZAP Report
