@@ -28,18 +28,24 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Sanitize target URL to create a safe filename
+        id: sanitize
+        run: |
+          sanitized_target=$(echo "${{ matrix.target }}" | sed 's/https:\/\///g' | sed 's/[./]/_/g')
+          echo "SANITIZED_TARGET=$sanitized_target" >> $GITHUB_ENV
+
       - name: Run ZAP Full Scan on ${{ matrix.target }}
         uses: zaproxy/action-full-scan@v0.11.0
         with:
           target: "${{ matrix.target }}"
           rules_file_name: null
-          artifact_name: "zap_report_${{ matrix.target | replace('https://', '') | replace('.', '_') | replace('/', '_') }}.json"
+          artifact_name: "zap_report_${{ env.SANITIZED_TARGET }}.json"
 
       - name: Upload ZAP Report
         uses: actions/upload-artifact@v3
         with:
-          name: zap-report-${{ matrix.target | replace('https://', '') | replace('.', '_') | replace('/', '_') }}
-          path: zap_report_${{ matrix.target | replace('https://', '') | replace('.', '_') | replace('/', '_') }}.json
+          name: zap-report-${{ env.SANITIZED_TARGET }}
+          path: zap_report_${{ env.SANITIZED_TARGET }}.json
 
       - name: Send ZAP Report to DefectDojo
         run: |
@@ -47,7 +53,7 @@ jobs:
           -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_TOKEN }}" \
           -F "scan_type=ZAP Scan" \
           -F "engagement=${{ matrix.engagement }}" \
-          -F "file=@zap_report_${{ matrix.target | replace('https://', '') | replace('.', '_') | replace('/', '_') }}.json" \
+          -F "file=@zap_report_${{ env.SANITIZED_TARGET }}.json" \
           -F "active=true" \
           -F "verified=false" \
           -F "close_old_findings=false"
