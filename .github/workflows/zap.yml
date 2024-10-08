@@ -34,13 +34,13 @@ jobs:
           target: "${{ matrix.target }}"
           rules_file_name: false
           format: "json"
-          artifact_name: "zap_report_${{ matrix.target | hash }}.json"
+          artifact_name: "zap_report_${{ matrix.target }}.json"
 
       - name: Upload ZAP Report
         uses: actions/upload-artifact@v2
         with:
-          name: zap-report-${{ matrix.target | hash }}
-          path: zap_report_${{ matrix.target | hash }}.json
+          name: zap-report-${{ matrix.target }}
+          path: zap_report_${{ matrix.target }}.json
 
       - name: Send ZAP Report to DefectDojo
         run: |
@@ -48,7 +48,7 @@ jobs:
           -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_TOKEN }}" \
           -F "scan_type=ZAP Scan" \
           -F "engagement=${{ matrix.engagement }}" \
-          -F "file=@zap_report_${{ matrix.target | hash }}.json" \
+          -F "file=@zap_report_${{ matrix.target }}.json" \
           -F "active=true" \
           -F "verified=false" \
           -F "close_old_findings=false"
