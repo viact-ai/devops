@@ -37,7 +37,7 @@ jobs:
           artifact_name: "zap_report_${{ matrix.target }}.json"
 
       - name: Upload ZAP Report
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3  # Updated to version 3
         with:
           name: zap-report-${{ matrix.target }}
           path: zap_report_${{ matrix.target }}.json
